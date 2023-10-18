@@ -45,3 +45,7 @@ st.latex(remove_latex_str + ".")
 
 st.markdown("The principle quantum number of outermost projectile electron is then,")
 st.latex(f"n_0={ec_obj.n0(int(element_input), int(remove_input))}.")
+
+st.markdown(
+    "This app is based on [this GitHub repository](https://github.com/jako4295/electronconfig)"
+)
