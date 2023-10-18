@@ -38,6 +38,7 @@ setup(
     long_description_content_type="text/markdown",
     url="",
     packages=find_packages(),
+    package_data={"": ["configurations/*.txt"]},
     python_requires=">=3.9.0",
     classifiers=[
         "Programming Language :: Python :: 3",
