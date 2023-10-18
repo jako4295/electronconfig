@@ -8,6 +8,12 @@ class ElectronConfig:
         self._import_electron_config()
 
     def _import_electron_config(self):
+        """
+        Imports electron configuration from file. Each electron configuration
+        is stored as an attribute of the class. The attribute name is ec1,
+        ec2, ec3, etc. The attribute value is the electron configuration
+        as a string.
+        """
         data_dir = os.path.join(os.path.dirname(__file__), "configurations")
         data_path = os.path.join(data_dir, "electron_configuration.txt")
         with open(data_path) as f:
@@ -20,7 +26,19 @@ class ElectronConfig:
     def _ec_from_nr(self, periodic_number: int) -> str:
         return getattr(self, f"ec{periodic_number}")
 
-    def _split_ec_in_row(self, periodic_number: str) -> np.ndarray:
+    def _split_ec_in_row(self, periodic_number: int) -> np.ndarray:
+        """
+        Splits electron configuration into rows. Each row is a numpy array
+        with three elements. The first element is the shell number, the second
+        element is the subshell letter and the third element is the number of
+        electrons in the subshell.
+
+        Args:
+            periodic_number (int): The periodic number of the element.
+
+        Returns:
+            np.ndarray: numpy array with three elements for each row.
+        """
         ec_rowsplit = np.array(  # regex to split string into numbers and letters
             re.findall("\d+|\D+", self._ec_from_nr(periodic_number)) + [" "],
             dtype="object",
@@ -30,12 +48,32 @@ class ElectronConfig:
         return ec_rowsplit
 
     def _row_arr_to_str(self, row: np.ndarray) -> str:
+        """
+        Converts an array on the form from _split_ec_in_row to a string.
+
+        Args:
+            row (np.ndarray): numpy array with three elements for each row.
+
+        Returns:
+            str: string with electron configuration.
+        """
         row[:, 0] = list(map(str, row[:, 0]))
         row[:, 2] = list(map(str, row[:, 2]))
         row_list = list(map("".join, row))
         return " ".join(row_list)
 
-    def _get_removed_electrons(self, periodic_number: int, remove_ec: int) -> str:
+    def remove_electrons(self, periodic_number: int, remove_ec: int) -> str:
+        """
+        Removes electrons from the electron configuration and returns the
+        new electron configuration as a string.
+
+        Args:
+            periodic_number (int): The periodic number of the element.
+            remove_ec (int): The number of electrons to remove.
+
+        Returns:
+            str: The new electron configuration as a string.
+        """
         if periodic_number == remove_ec:
             return ""
         elif periodic_number < remove_ec:
@@ -72,6 +110,14 @@ class ElectronConfig:
         Consider O with 8 electrons. The electron configuration is
         1s2 2s2 2p4. If we remove 6 electrons we get 1s2.
         Hence n0 = 1 because the outermost electron is in the first shell.
+
+        Args:
+            periodic_number (int): The periodic number of the element.
+            remove_ec (int): The number of electrons to remove.
+
+        Returns:
+            int: The principle quantum number of the outermost projectile
+            electron.
         """
         if periodic_number == remove_ec:
             raise ValueError(
@@ -82,5 +128,5 @@ class ElectronConfig:
                 "You can not remove more electrons than the element has."
                 "Hence periodic_number must be greater than remove_ec."
             )
-        reduced_ec = self._get_removed_electrons(periodic_number, remove_ec)
+        reduced_ec = self.remove_electrons(periodic_number, remove_ec)
         return int(re.findall("\d+|\D+", reduced_ec)[-3])
